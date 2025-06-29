@@ -80,7 +80,10 @@ Y88b  d88P 888   Y8888 888        Y88b  d88P     888     Y88b. .d88P 888  T88b  
       </div>
     </div>
   </main>
-  
+  <div class="terminal">
+    <div id="output"></div>
+    <input id="cmdInput" placeholder="コマンドを入力..." />
+  </div>
   <script>
     const CNP_CONTRACT_ADDRESS = '0x138A5C693279b6Cd82F48d4bEf563251Bc15ADcE';
     const ALCHEMY_API_KEY = 'gvAPrvagAptflNs0-2UE7';
@@ -202,6 +205,24 @@ Y88b  d88P 888   Y8888 888        Y88b  d88P     888     Y88b. .d88P 888  T88b  
     
     fetchCNPDetails();
     renderExperiences();
+
+    // ターミナル用の最低限のロジック追加
+    function appendLine(text, cls) {
+      const div = document.createElement('div');
+      if (cls) div.classList.add(cls);
+      div.textContent = text;
+      document.getElementById('output').appendChild(div);
+      document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
+    }
+    const cmdInput = document.getElementById('cmdInput');
+    if (cmdInput) {
+      cmdInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          appendLine('[cnp]$ ' + cmdInput.value, 'prompt-prefix');
+          cmdInput.value = '';
+        }
+      });
+    }
   </script>
   <div class="fooder">
   <center>2025@<a href="https://cryptoninjaswap.com/">cryptoninjaswap</a></center>
