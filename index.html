@@ -1,11 +1,62 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CNPSTORYS</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>CNPSTORYS</h1>
-  <p>Coming Soon…</p>
+  <header class="header">
+
+    <div class="header-bar">
+      <a href="index.html" class="home-btn">HOME</a>
+      <button id="walletBtn" class="wallet-btn">ウォレット接続</button>
+    </div>
+
+    <div class="logo-block">
+      <pre class="logo">
+  .d8888b.  888b    888 8888888b.   .d8888b.  88888888888  .d88888b.  8888888b.  Y88b   d88P  .d8888b. 
+d88P  Y88b 8888b   888 888   Y88b d88P  Y88b     888     d88P" "Y88b 888   Y88b  Y88b d88P  d88P  Y88b 
+888    888 88888b  888 888    888 Y88b.          888     888     888 888    888   Y88o88P   Y88b. 
+888        888Y88b 888 888   d88P  "Y888b.       888     888     888 888   d88P    Y888P     "Y888b. 
+888        888 Y88b888 8888888P"      "Y88b.     888     888     888 8888888P"      888         "Y88b. 
+888    888 888  Y88888 888              "888     888     888     888 888 T88b       888           "888 
+Y88b  d88P 888   Y8888 888        Y88b  d88P     888     Y88b. .d88P 888  T88b      888     Y88b  d88P 
+ "Y8888P"  888    Y888 888         "Y8888P"      888      "Y88888P"  888   T88b     888      "Y8888P" 
+      </pre>
+      <img src="logo.png" alt="CNPSTORYSロゴ" class="logo-img" />
+    </div>
+    <div class="header-content">
+      <h1 class="title">CNPSTORYS 主のCNPに経験と魂を記録しろJK！</h1>
+    </div>
+  </header>
+  <div class="terminal">
+    <div id="output">
+      <div>CNPSTORYS</div>
+      <div>Type "help" for commands.</div>
+    </div>
+    <div class="prompt">
+      <span class="prompt-prefix">[cnpstorys-demo]$</span>
+      <input id="cmdInput" placeholder="Type a command..." autofocus />
+    </div>
+  </div>
+  <div class="my-cnp-section" id="myCnpSection" style="display: none;">
+    <h2 class="my-cnp-title">あなたのCNP</h2>
+    <div id="myCnpGrid" class="my-cnp-grid"></div>
+  </div>
+  <div class="ranking-section">
+    <h2 class="ranking-title">CNPSTORYS 22222ランキング</h2>
+    <div id="ranking" class="ranking-grid"></div>
+    <div class="pagination">
+      <button id="prevBtn" class="nav-btn" disabled>前へ</button>
+      <span id="pageInfo" class="page-info">ページ 1</span>
+      <button id="nextBtn" class="nav-btn">次へ</button>
+    </div>
+  </div>
+  <script type="module" src="app.js"></script>
+  <div class="fooder">
+  <center>2025@<a href="https://cryptoninjaswap.com/">cryptoninjaswap</a></center>
+   </div>
 </body>
 </html>
