@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>CNP魂経験登録ページ - CNPSTORYS</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .score-label { color: #ff0; font-weight: bold; margin-left: 1rem; }
+  </style>
+</head>
+<body>
+  <header class="header">
+
+    <div class="header-bar">
+      <a href="index.html" class="home-btn">HOME</a>
+      <button id="walletBtn" class="wallet-btn">ウォレット接続</button>
+    </div>
+
+    <div class="logo-block">
+<pre class="logo">
+  .d8888b.  888b    888 8888888b.   .d8888b.  88888888888  .d88888b.  8888888b.  Y88b   d88P  .d8888b. 
+ d88P  Y88b 8888b   888 888   Y88b d88P  Y88b     888     d88P" "Y88b 888   Y88b  Y88b d88P  d88P  Y88b 
+ 888    888 88888b  888 888    888 Y88b.          888     888     888 888    888   Y88o88P   Y88b. 
+ 888        888Y88b 888 888   d88P  "Y888b.       888     888     888 888   d88P    Y888P     "Y888b. 
+ 888        888 Y88b888 8888888P"      "Y88b.     888     888     888 8888888P"      888         "Y88b. 
+ 888    888 888  Y88888 888              "888     888     888     888 888 T88b       888           "888 
+ Y88b  d88P 888   Y8888 888        Y88b  d88P     888     Y88b. .d88P 888  T88b      888     Y88b  d88P 
+  "Y8888P"  888    Y888 888         "Y8888P"      888      "Y88888P"  888   T88b     888      "Y8888P" 
+</pre>
+    </div>
+    <div class="header-content">
+      <h1 class="title">CNPSTORYS 主のCNPに経験と魂を記録しろJK！</h1>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="terminal">
+      <div id="cnpInfo" class="cnp-info-section">
+        <h2>CNPSTORYSランキング<span id="rankNum"></span>位 <span class="score-label" id="scoreLabel"></span></h2>
+        <div id="cnpDetails" class="cnp-details"></div>
+      </div>
+      
+      <div class="edit-section">
+        <h3>魂経験注入</h3>
+        <form id="expForm" class="exp-form">
+          <div class="form-group">
+            <label for="expTitle">あなたのCNPの名前</label>
+            <input type="text" id="expTitle" required>
+          </div>
+
+          <div class="form-group">
+            <label for="expType">魂経験タイプ</label>
+            <select id="expType" required>
+              <option value="SNS">SNS</option>
+              <option value="Site">バイブコーディング制作</option>
+              <option value="Other">その他制作</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="expUrl">魂経験URL</label>
+            <input type="url" id="expUrl">
+          </div>
+
+          <button type="submit" class="submit-btn">魂経験注入</button>
+        </form>
+      </div>
+      
+      <div class="experiences-section">
+        <h3>過去魂経験注入内容</h3>
+        <div id="experiencesList" class="experiences-list"></div>
+      </div>
+    </div>
+  </main>
+  
+  <script>
+    const CNP_CONTRACT_ADDRESS = '0x138A5C693279b6Cd82F48d4bEf563251Bc15ADcE';
+    const ALCHEMY_API_KEY = 'gvAPrvagAptflNs0-2UE7';
+    
+    const params = new URLSearchParams(location.search);
+    const tokenId = params.get('token_id');
+    const exps = JSON.parse(localStorage.getItem('exps') || '[]');
+    
+    document.getElementById('rankNum').textContent = tokenId;
+    
+    function calcScore(id) {
+      const experiences = exps.filter(exp => exp.token_id == id);
+      const totalPoints = experiences.reduce((sum, exp) => sum + exp.points, 0);
+      const totalLikes = experiences.reduce((sum, exp) => sum + (exp.likes || 0), 0);
+      return totalPoints * (totalLikes + 1);
+    }
+    
+    function getRank(id) {
+      const allIds = [...new Set(exps.map(exp => exp.token_id))];
+      const scores = allIds.map(tid => ({ tid, score: calcScore(tid) }));
+      scores.sort((a, b) => b.score - a.score);
+      const rank = scores.findIndex(s => s.tid == id) + 1;
+      return { rank, score: calcScore(id) };
+    }
+    
+    const { rank, score } = getRank(tokenId);
+    document.getElementById('rankNum').textContent = rank || tokenId;
+    document.getElementById('scoreLabel').textContent = `Score: ${score}`;
+    
+    async function fetchCNPDetails() {
+      try {
+        const url = `https://eth-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${CNP_CONTRACT_ADDRESS}&tokenId=${tokenId}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        const detailsEl = document.getElementById('cnpDetails');
+        const imageUrl = data.image?.cachedUrl || data.image?.originalUrl || 'https://via.placeholder.com/300x300/333/666?text=CNP';
+        
+        detailsEl.innerHTML = `
+          <div class="cnp-detail-card">
+            <img src="${imageUrl}" alt="CNP #${tokenId}" class="cnp-detail-image" onerror="this.src='https://via.placeholder.com/300x300/333/666?text=CNP'">
+            <div class="cnp-detail-info">
+              <h4>${data.name || `CNP #${tokenId}`}</h4>
+              <p>${data.description || '説明なし'}</p>
+              <div class="cnp-attributes">
+                ${data.raw?.metadata?.attributes?.map(attr => 
+                  `<span class="attribute">${attr.trait_type}: ${attr.value}</span>`
+                ).join('') || ''}
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error fetching CNP details:', error);
+        document.getElementById('cnpDetails').innerHTML = '<p class="error">CNP情報の取得に失敗しました</p>';
+      }
+    }
+    
+    function renderExperiences() {
+      const experiences = exps.filter(exp => exp.token_id == tokenId);
+      const listEl = document.getElementById('experiencesList');
+      
+      if (experiences.length === 0) {
+        listEl.innerHTML = '<p class="no-experiences">まだ経験が登録されていません</p>';
+        return;
+      }
+      
+      listEl.innerHTML = experiences.map(exp => `
+        <div class="experience-item">
+          <div class="exp-header">
+            <h4>${exp.title}</h4>
+            <span class="exp-type ${exp.type.toLowerCase()}">${exp.type}</span>
+          </div>
+          ${exp.url ? `<a href="${exp.url}" target="_blank" class="exp-url">${exp.url}</a>` : ''}
+          <div class="exp-footer">
+            <span class="exp-points">${exp.points} pts</span>
+            <span class="exp-likes">$2764$FE0F ${exp.likes || 0}</span>
+            <button onclick="likeExperience('${exp.title}')" class="like-btn">いいね</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function likeExperience(title) {
+      const exp = exps.find(e => e.token_id == tokenId && e.title === title);
+      if (exp) {
+        exp.likes = (exp.likes || 0) + 1;
+        localStorage.setItem('exps', JSON.stringify(exps));
+        renderExperiences();
+      }
+    }
+    
+    document.getElementById('expForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const title = document.getElementById('expTitle').value;
+      const url = document.getElementById('expUrl').value;
+      const type = document.getElementById('expType').value;
+      
+      const points = type === 'SNS' ? 10 : type === 'Site' ? 20 : 5;
+      
+      exps.push({
+        token_id: tokenId,
+        title,
+        url,
+        type,
+        points,
+        likes: 0,
+        timestamp: new Date().toISOString()
+      });
+      
+      localStorage.setItem('exps', JSON.stringify(exps));
+      
+      document.getElementById('expForm').reset();
+      renderExperiences();
+      
+      alert('経験を登録しました！');
+    });
+    
+    fetchCNPDetails();
+    renderExperiences();
+  </script>
+  <div class="fooder">
+  <center>2025@<a href="https://cryptoninjaswap.com/">cryptoninjaswap</a></center>
+   </div>
+</body>
+</html>
